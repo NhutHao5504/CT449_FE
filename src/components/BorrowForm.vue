@@ -8,7 +8,7 @@
         <div class="borrow-content">
           <div>
             <label>Tên sách:</label>
-            <p><strong>{{ book?.tenSach }}</strong></p>
+            <p><strong>{{ book?.TENSACH }}</strong></p>
           </div>
 
           <div>
@@ -16,14 +16,14 @@
             <input
               type="number"
               v-model.number="quantity"
-              :max="book?.soQuyen || 1"
+              :max="book?.SOQUYEN || 1"
               min="1"
             />
           </div>
         </div>
-<h5 style="color: red; font-size: 0.95rem;">
-  (Lưu ý: Không được mượn quá 14 ngày. Mượn quá 1 ngày phạt 5000đ)
-</h5>
+      <h5 style="color: red; font-size: 0.95rem;">
+      (Lưu ý: Không được mượn quá 14 ngày. Mượn quá 1 ngày phạt 5000đ)
+      </h5>
         <button class="btn-add" @click="registerBorrow">Đăng Ký Mượn</button>
         <button class="btn-close" @click="$emit('close')">X</button>
       </div>
@@ -44,7 +44,7 @@ export default {
     return {
       store,
       quantity: 1,
-      ngayMuon: ''
+      NGAYMUON: ''
     }
   },
   computed: {
@@ -55,9 +55,17 @@ export default {
   methods: {
     registerBorrow() {
       const today = new Date()
-      this.ngayMuon = today.toISOString().split('T')[0]
+      this.NGAYMUON = today.toISOString().split('T')[0]
 
-      dangKyMuonSach(this.docGiaId, this.book.maSach, this.quantity, this.ngayMuon)
+      // 👉 THÊM ĐOẠN NÀY Ở ĐÂY
+    console.log("DỮ LIỆU GỬI LÊN:", {
+      docGiaID: this.docGiaId,
+      MASACH: this.book?.MASACH,
+      SOQUYEN: this.quantity,
+      NGAYMUON: this.NGAYMUON
+    });
+
+      dangKyMuonSach(this.docGiaId, this.book.MASACH, this.quantity, this.NGAYMUON)
         .then(() => {
           alert('Đăng ký mượn thành công!')
           this.$emit('close')

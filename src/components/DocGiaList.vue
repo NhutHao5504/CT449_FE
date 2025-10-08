@@ -24,7 +24,7 @@
       </thead>
       <tbody>
         <tr v-for="docgia in paginatedDocGias" :key="docgia._id">
-          <td>{{ docgia.TEN }}</td>
+          <td>{{ docgia.HOLOT }} {{ docgia.TEN }}</td>
           <td>{{ docgia.DIENTHOAI }}</td>
           <td>
             <button

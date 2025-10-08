@@ -150,32 +150,32 @@ input:focus {
 }
 </style>
 
-
-
 <template>
   <div class="overlay">
-    
     <form @submit.prevent="saveChanges">
-          <h3>Cập nhật Thông Tin Tài Khoản</h3>
+      <h3>Cập nhật Thông Tin Tài Khoản</h3>
 
       <label>Địa chỉ:</label>
-      <input v-model="form.diachi" type="text" required />
+      <input v-model="form.DIACHI" type="text" required />
 
       <div v-if="role === 'docgia'">
-        <label>Họ và Tên:</label>
-        <input v-model="form.hoten" type="text" required />
+        <label>Họ lót:</label>
+        <input v-model="form.HOLOT" type="text" required />
+
+        <label>Tên:</label>
+        <input v-model="form.TEN" type="text" required />
 
         <label>Ngày Sinh:</label>
-        <input v-model="form.ngaysinh" type="date" required />
+        <input v-model="form.NGAYSINH" type="date" required />
 
         <label>Giới tính:</label>
         <div class="radio-group">
           <label>
-            <input type="radio" value="Nam" v-model="form.gioitinh" required />
+            <input type="radio" value="Nam" v-model="form.PHAI" required />
             Nam
           </label>
           <label>
-            <input type="radio" value="Nữ" v-model="form.gioitinh" required />
+            <input type="radio" value="Nữ" v-model="form.PHAI" required />
             Nữ
           </label>
         </div>
@@ -183,88 +183,101 @@ input:focus {
 
       <div v-else>
         <label>Họ và Tên:</label>
-        <input v-model="form.hoten" type="text" required />
+        <input v-model="form.HoTenNV" type="text" required />
       </div>
 
       <div class="button-group">
-        <button type="submit" class="btn btn-success" @click="$emit('update')">Lưu</button>
-        <button type="button" class="btn btn-secondary" @click="$emit('cancel')">Hủy</button>
+        <button type="submit" class="btn btn-success" @click="$emit('update')">
+          Lưu
+        </button>
+        <button type="button" class="btn btn-secondary" @click="$emit('cancel')">
+          Hủy
+        </button>
       </div>
     </form>
   </div>
 </template>
 
-
 <script>
-  import { updateUserInfo } from '@/services/accService'
+import { updateUserInfo } from '@/services/accService'
 
-  export default {
-    props: {
-      user: Object,
-      role: String,
-      userId: String
-    },
-    emits: ['cancel', 'update'],
-    data() {
-      return {
-        form: {
-          diachi: this.user?.diachi || '',
-          hoten: this.user?.hoten || '',
-          ngaysinh: this.user?.ngaysinh?.includes('T') 
-                  ? this.user.ngaysinh.split('T')[0] 
-                  : '',
-          gioitinh: this.user?.gioitinh || 'Nam',
-        }
+export default {
+  props: {
+    user: Object,
+    role: String,
+    userId: String
+  },
+  emits: ['cancel', 'update'],
+  data() {
+    return {
+      form: {
+        DIACHI: this.user?.DIACHI || this.user?.DiaChi || '',
+        HOLOT: this.user?.HOLOT || '',
+        TEN: this.user?.TEN || '',
+        NGAYSINH: this.user?.NGAYSINH?.includes('T')
+          ? this.user.NGAYSINH.split('T')[0]
+          : '',
+        PHAI: this.user?.PHAI || 'Nam',
+        HoTenNV: this.user?.HoTenNV || this.user?.HoTen || ''
       }
-    },
+    }
+  },
 
-    watch: {
-      user: {
-        handler(newUser) {
-          if (newUser) {
-            this.form.diachi = newUser.diachi || ''
-            this.form.hoten = newUser.hoten || ''
-            this.form.ngaysinh = newUser.ngaysinh
-              ? newUser.ngaysinh.split('T')[0]
-              : ''
-            this.form.gioitinh = newUser.gioitinh || 'Nam'
-          }
-        },
-        immediate: true
+  watch: {
+    user: {
+      handler(newUser) {
+        if (newUser) {
+          this.form.DIACHI = newUser.DIACHI || newUser.DiaChi || ''
+          this.form.HOLOT = newUser.HOLOT || ''
+          this.form.TEN = newUser.TEN || ''
+          this.form.NGAYSINH = newUser.NGAYSINH
+            ? newUser.NGAYSINH.split('T')[0]
+            : ''
+          this.form.PHAI = newUser.PHAI || 'Nam'
+          this.form.HoTenNV = newUser.HoTenNV || newUser.HoTen || ''
+        }
+      },
+      immediate: true
+    }
+  },
+
+  methods: {
+    async saveChanges() {
+      if (!this.userId) {
+        alert('Lỗi: Không tìm thấy userId!')
+        return
       }
-    },
-    methods: {
-      async saveChanges() {
-        if (!this.userId) {
-          alert('Lỗi: Không tìm thấy userId!')
-          return
-        }
 
-        try {
-          let updateData
-          if (this.role === 'docgia') {
-            updateData = {
-              diachi: this.form.diachi,
-              tenDG: this.form.hoten,
-              ngaysinh: this.form.ngaysinh,
-              gioitinh: this.form.gioitinh
-            }
-          } else {
-            updateData = {
-              diachi: this.form.diachi,
-              hotenNV: this.form.hoten,
-            }
+      try {
+        let updateData
+        if (this.role === 'docgia') {
+          updateData = {
+            DIACHI: this.form.DIACHI,
+            HOLOT: this.form.HOLOT,
+            TEN: this.form.TEN,
+            NGAYSINH: this.form.NGAYSINH,
+            PHAI: this.form.PHAI
           }
-          await updateUserInfo(this.role, this.userId, updateData)
-
-          alert('Cập nhật thành công!')
-          this.$emit('update')
-          this.$emit('cancel')
-        } catch (error) {
-          alert('Có lỗi xảy ra!')
-          console.error(error)
+        } else {
+          updateData = {
+            DiaChi: this.form.DIACHI,
+            HoTenNV: this.form.HoTenNV
+          }
         }
+
+        console.log('📦 Dữ liệu gửi đi:', updateData)
+        await updateUserInfo(this.role, this.userId, updateData)
+
+        alert('Cập nhật thành công!')
+        this.$emit('update')
+        this.$emit('cancel')
+      } catch (error) {
+        alert('Có lỗi xảy ra!')
+        console.error(error)
       }
     }
   }
+}
 </script>
+
+

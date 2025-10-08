@@ -247,14 +247,14 @@ export default {
 
       try {
         const res = await axios.get("http://localhost:3000/api/theodoi");
-        this.lichSuMuon = res.data.filter(m => String(m.maDG) === String(this.getUser._id)); 
+        this.lichSuMuon = res.data.filter(m => String(m.MADOCGIA) === String(this.getUser._id)); 
       } catch (error) {
         console.error("Lỗi khi lấy lịch sử mượn sách:", error);
       }
     },
     gettenSach(MASACH) {
       const sach = this.sachs.find(s => String(s.MASACH) === String(MASACH));
-      return sach ? sach.tenSach : 'Không tìm thấy'
+      return sach ? sach.TENSACH : 'Không tìm thấy'
     },
     formatDate(dateString) {
       const date = new Date(dateString);

@@ -288,12 +288,13 @@ button:active {
         <strong>Số điện thoại:</strong>
         <span class="value">{{ userInfo.sdt }}</span>
       </p>
-      <p>
+      <!-- Chỉ độc giả mới có họ lót -->
+      <p v-if="userRole === 'docgia'">
         <strong>Họ lót:</strong>
         <span class="value">{{ userInfo.holot }}</span>
       </p>
       <p>
-        <strong>Tên:</strong>
+        <strong>{{ userRole === 'docgia' ? 'Tên:' : 'Họ và Tên:' }}</strong>
         <span class="value">{{ userInfo.ten }}</span>
       </p>
       <p v-if="userRole === 'docgia'">
@@ -348,33 +349,34 @@ button:active {
           console.error('Không tìm tài khoản!')
           return
         }
-        try {
-          const userData = await getUserInfo(this.userID, this.userRole)
-          this.userInfo = {
-            _id: userData._id,
-            sdt: this.userRole === 'docgia'
-                ? userData.DIENTHOAI || ''
-                : userData.SoDienThoai || '',
-            holot: this.userRole === 'docgia'
-                ? userData.HOLOT || ''
-              : userData.HoTenNV || '',
-            ten: this.userRole === 'docgia'
-                ? userData.TEN || ''
-                : userData.HoTenNV || '',    
-            diachi: userData.DIACHI || 'Chưa cập nhật',
-            role: this.userRole,
-            gioitinh: userData.PHAI || '',
-            chucvu:
-              this.userRole === 'docgia'
-                ? 'Độc giả'
-                : userData.chucvu === 'quanly'
-                ? 'Quản lý'
-                : 'Nhân viên',
-            ngaysinh:
-              this.userRole === 'docgia' && userData?.NGAYSINH
-                ? userData.NGAYSINH.split('T')[0]
-                : ''
-          }
+try {
+  const userData = await getUserInfo(this.userID, this.userRole)
+  this.userInfo = {
+    _id: userData._id,
+    sdt: this.userRole === 'docgia'
+      ? userData.DIENTHOAI || ''
+      : userData.SoDienThoai || '',
+    holot: this.userRole === 'docgia'
+      ? userData.HOLOT || ''
+      : userData.HoTenNV || '',
+    ten: this.userRole === 'docgia'
+      ? userData.TEN || ''
+      : userData.HoTenNV || '',
+    diachi: userData.DIACHI || userData.DiaChi || 'Chưa cập nhật',
+    role: this.userRole,
+    gioitinh: userData.PHAI || '',
+    chucvu:
+      this.userRole === 'docgia'
+        ? 'Độc giả'
+        : userData.ChucVu === 'quanly'
+        ? 'Quản lý'
+        : 'Nhân viên',
+    ngaysinh:
+      this.userRole === 'docgia' && userData?.NGAYSINH
+        ? userData.NGAYSINH.split('T')[0]
+        : ''
+  }
+
         } catch (error) {
           console.error('Lỗi khi lấy thông tin tài khoản:', error)
         }

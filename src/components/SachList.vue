@@ -25,14 +25,14 @@
       </thead>
       <tbody>
         <tr v-for="book in paginatedBooks" :key="book._id">
-          <td>{{ book.maSach || 'Không có mã' }}</td>
-          <td>{{ book.tenSach || 'Không có tên' }}</td>
-          <td>{{ book.tacGia || 'Không có tên' }}</td>
-          <td>{{ getNXBName(book.maNXB) }}</td>
+          <td>{{ book.MASACH || 'Không có mã' }}</td>
+          <td>{{ book.TENSACH || 'Không có tên' }}</td>
+          <td>{{ book.TACGIA || 'Không có tên' }}</td>
+          <td>{{ getNXBName(book.MANXB) }}</td>
           <td>
-            {{ book.soQuyen !== undefined ? book.soQuyen : 'Không có dữ liệu' }}
+            {{ book.SOQUYEN !== undefined ? book.SOQUYEN : 'Không có dữ liệu' }}
           </td>
-          <td>{{ formatCurrency(book.donGia) }}</td>
+          <td>{{ formatCurrency(book.DONGIA) }}</td>
           <td>
             <div class="button-group">
               <button
@@ -94,16 +94,16 @@
       nextPage() {
         if (this.currentPage < this.totalPages) this.currentPage++
       },
-      getNXBName(maNXB) {
-        if (!maNXB || !this.nxbs) return 'Chưa có NXB';
+      getNXBName(MANXB) {
+        if (!MANXB || !this.nxbs) return 'Chưa có NXB';
 
-        const manxb = typeof maNXB === 'object' ? maNXB.toString() : String(maNXB);
+        const manxb = typeof MANXB === 'object' ? MANXB.toString() : String(MANXB);
 
         const nxb = this.nxbs.find(n => 
-          String(n.maNXB) === manxb || String(n._id) === manxb
+          String(n.MANXB) === manxb || String(n._id) === manxb
         );
 
-        return nxb ? nxb.tenNXB : 'Không tìm thấy';
+        return nxb ? nxb.TENNXB : 'Không tìm thấy';
       },
       formatCurrency(value) {
         if (value == null || isNaN(value)) return 'Không có giá'
