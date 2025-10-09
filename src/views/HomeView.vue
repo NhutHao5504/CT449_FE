@@ -220,7 +220,7 @@ export default {
         const keyword = this.search.normalize("NFC").toLowerCase().trim()
         const manxbValue = book.MANXB?._id || book.MANXB || ''
         const nxb = this.nxbs.find(n => String(n.MANXB).trim() === String(manxbValue).trim())
-        const tenNXB = nxb ? n.TENNXB.normalize("NFC").toLowerCase() : ''
+        const tenNXB = nxb ? nxb.TENNXB.normalize("NFC").toLowerCase() : ''
         return (
           book.TENSACH?.normalize("NFC").toLowerCase().includes(keyword) ||
           book.MASACH?.toLowerCase().includes(keyword) ||

@@ -118,7 +118,7 @@ export default {
   padding: 14px 30px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   height: 70px;
-  gap: 90px; /* Khoảng cách giữa logo+name và navbar */
+  gap: 90px;
 }
 
 /* Bên trái: logo và tên */

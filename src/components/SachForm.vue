@@ -126,7 +126,7 @@ export default {
     const reader = new FileReader();
     reader.onload = e => {
       this.bookLocal.hinhAnh = e.target.result;
-      console.log('Base64 ảnh:', this.bookLocal.hinhAnh.slice(0, 100)); // 👈 kiểm tra base64
+      console.log('Base64 ảnh:', this.bookLocal.hinhAnh.slice(0, 100)); 
     };
     reader.readAsDataURL(file);
   } else {

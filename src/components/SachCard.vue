@@ -78,15 +78,20 @@ export default {
   },
   methods: {
     getNXBName(MANXB) {
-      if (!MANXB || !this.nxbs) return 'Chưa có NXB';
+  if (!MANXB || !this.nxbs || this.nxbs.length === 0) return 'Chưa có NXB';
 
-      const manxb = typeof MANXB === 'object' ? MANXB.toString() : String(MANXB);
-      const nxb = this.nxbs.find(n =>
-        String(n.MANXB) === manxb || String(n._id) === manxb
-      );
+  const manxb = MANXB?.$oid ? MANXB.$oid : String(MANXB);
+  const nxb = this.nxbs.find(n =>
+    String(n.MANXB) === manxb || String(n._id) === manxb
+  );
 
-      return nxb ? nxb.TENNXB : 'Không tìm thấy';
-    },
+  if (!nxb) {
+    console.warn("Không tìm thấy NXB:", MANXB, "trong", this.nxbs);
+    return "Không tìm thấy";
+  }
+
+  return nxb.TENNXB || nxb.tenNXB || "Không rõ tên NXB";
+},
     formatPrice(price) {
       return new Intl.NumberFormat("vi-VN", {
         style: "currency",
