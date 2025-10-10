@@ -1,3 +1,252 @@
+<template>
+  <div class="borrow-list">
+    <h1>Theo dõi mượn sách</h1>
+
+    <InputSearch v-model="search" />
+
+    <div class="page-size mb-2">
+      <label for="pageSize">Hiển thị:</label>
+      <select v-model="perPage" id="pageSize">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
+      <span> phiếu / trang</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Người mượn</th>
+          <th>Tên sách</th>
+          <th>Số quyển</th>
+          <th>Ngày mượn</th>
+          <th>Ngày trả</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="don in paginatedDonMuon" :key="don._id">
+          <td>{{ loadHoTen(don.MADOCGIA) }}</td>
+          <td>{{ loadSach(don.MASACH) }}</td>
+          <td>{{ don.SOQUYEN }}</td>
+          <td>{{ formatDate(don.NGAYMUON) }}</td>
+          <td>
+            {{ formatNgay(don.NGAYTRA) }}
+            <div
+              v-if="isQuaHan(don.NGAYMUON, don.NGAYTRA)"
+              style="color: red; font-size: 0.9rem"
+            >
+              Mượn quá hạn ({{ soNgayTre(don.NGAYMUON, don.NGAYTRA) }} ngày) –
+              Phạt {{ soNgayTre(don.NGAYMUON, don.NGAYTRA) * 5000 }}đ
+            </div>
+          </td>
+          <!-- Cột TRẠNG THÁI -->
+<td>
+  <!-- ✅ Khi mất sách -->
+  <div v-if="don.trangThai === 'Mất sách'">
+    <strong style="color: #e74c3c">📕 {{ don.trangThai }}</strong>
+    <div style="margin-top: 4px; color: #c0392b; font-weight: 600;">
+      💸 Bồi thường:
+      {{ formatCurrency(don.TIENBOITHUONG) }}
+    </div>
+  </div>
+
+  <!-- ✅ Các trạng thái khác -->
+  <span
+    v-else-if="don.trangThai === 'Đã trả'"
+    style="color: #28a745; font-weight: 600"
+  >
+    {{ don.trangThai }}
+  </span>
+  <span
+    v-else-if="don.trangThai === 'Đang mượn'"
+    style="color: #f39c12; font-weight: 600"
+  >
+    {{ don.trangThai }}
+  </span>
+  <span
+    v-else
+    style="color: #3498db; font-weight: 600"
+  >
+    {{ don.trangThai }}
+  </span>
+</td>
+
+<!-- Cột THAO TÁC -->
+<td>
+  <!-- Duyệt -->
+  <button
+    style="background:#4caf50;color:white"
+    v-if="don.trangThai === 'Chờ duyệt'"
+    @click="$emit('duyetMuon', don)"
+  >
+    Duyệt
+  </button>
+
+  <!-- Trả -->
+  <button
+    style="background:#f44336;color:white"
+    v-if="don.trangThai === 'Đang mượn'"
+    @click="$emit('xacNhanTra', don)"
+  >
+    Trả
+  </button>
+
+  <!-- Mất sách -->
+  <button
+    style="background:#9c27b0;color:white"
+    v-if="don.trangThai === 'Đang mượn'"
+    @click="moThongBaoMatSach(don)"
+  >
+    Mất sách
+  </button>
+
+  <!-- ✅ Khi mất sách thì hiện nút XÓA -->
+  <button
+    style="background:#ff9800;color:white"
+    v-if="don.trangThai === 'Mất sách'"
+    @click="$emit('xoaDonMuon', don)"
+  >
+    🗑 Xóa
+  </button>
+
+  <!-- Đã trả -->
+  <button
+    style="background:#ff9800;color:white"
+    v-if="don.trangThai === 'Đã trả'"
+    @click="$emit('xoaDonMuon', don)"
+  >
+    Xóa
+  </button>
+</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- FORM THÔNG BÁO MẤT SÁCH -->
+    <MatSachForm
+      v-if="hienFormMatSach && donChon"
+      :tenDocGia="loadHoTen(donChon.MADOCGIA)"
+      :tenSach="loadSach(donChon.MASACH)"
+      @submit="xacNhanMatSach"
+      @cancel="dongFormMatSach"
+    />
+
+    <div class="pagination mt-3">
+      <button @click="prevPage" :disabled="currentPage === 1">
+        <i class="bi bi-chevron-left"></i>
+        Trước
+      </button>
+      <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        Sau
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+import InputSearch from "@/components/InputSearch.vue";
+import MatSachForm from "@/components/MatSachForm.vue";
+
+export default {
+  components: { InputSearch, MatSachForm },
+  props: {
+    danhSachDonMuon: Array,
+    danhSachDocGia: Array,
+    danhSachSach: Array,
+  },
+  data() {
+    return {
+      currentPage: 1,
+      perPage: 10,
+      search: "",
+      hienFormMatSach: false,
+      donChon: null,
+    };
+  },
+  computed: {
+    filteredDonMuon() {
+      const keyword = this.search.toLowerCase().trim();
+      return this.danhSachDonMuon.filter((don) => {
+        const sach = this.loadSach(don.MASACH).toLowerCase();
+        const ten = this.loadHoTen(don.MADOCGIA).toLowerCase();
+        return sach.includes(keyword) || ten.includes(keyword);
+      });
+    },
+    totalPages() {
+      return Math.ceil(this.filteredDonMuon.length / this.perPage);
+    },
+    paginatedDonMuon() {
+      const start = (this.currentPage - 1) * this.perPage;
+      return this.filteredDonMuon.slice(start, start + this.perPage);
+    },
+  },
+  methods: {
+    loadHoTen(id) {
+      const docGia = this.danhSachDocGia.find((dg) => dg._id === id);
+      return docGia ? docGia.TEN : "Không tìm thấy";
+    },
+    loadSach(ma) {
+      const sach = this.danhSachSach.find((s) => s.MASACH === ma);
+      return sach ? sach.TENSACH : "Không tìm thấy";
+    },
+    formatDate(d) {
+      return new Date(d).toLocaleDateString("vi-VN");
+    },
+    formatNgay(d) {
+      if (!d) return "Chưa trả";
+      return new Date(d).toLocaleDateString("vi-VN");
+    },
+    isQuaHan(muon, tra) {
+      if (!muon || tra) return false;
+      const hienTai = new Date();
+      const ngayMuon = new Date(muon);
+      const soNgayMuon = (hienTai - ngayMuon) / (1000 * 60 * 60 * 24);
+      return soNgayMuon > 14;
+    },
+    soNgayTre(muon, tra) {
+      if (!muon) return 0;
+      const hienTai = new Date();
+      const ngayMuon = new Date(muon);
+      const soNgayMuon = (hienTai - ngayMuon) / (1000 * 60 * 60 * 24);
+      return soNgayMuon > 14 ? Math.floor(soNgayMuon - 14) : 0;
+    },
+    moThongBaoMatSach(don) {
+      console.log("Mở form mất sách:", don);
+      this.donChon = don;
+      this.hienFormMatSach = true;
+    },
+    dongFormMatSach() {
+      this.hienFormMatSach = false;
+      this.donChon = null;
+    },
+    xacNhanMatSach(lyDo) {
+      this.$emit("matSach", { don: this.donChon, lyDo });
+      this.dongFormMatSach();
+    },
+    formatCurrency(value) {
+      if (!value) return "0đ";
+      return value.toLocaleString("vi-VN") + "đ";
+    },
+    prevPage() {
+      if (this.currentPage > 1) this.currentPage--;
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) this.currentPage++;
+    },
+  },
+  watch: {
+    perPage() {
+      this.currentPage = 1;
+    },
+  },
+};
+</script>
+
 <style scoped>
 .borrow-list {
   padding: 30px;
@@ -147,28 +396,44 @@ button:active {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-button[style*="background: #4caf50"] {
+button[style*="background: #4caf50"],
+button[style*="background:#4caf50"] {
   background: linear-gradient(to right, #28a745, #218838) !important;
   color: white;
 }
-button[style*="background: #4caf50"]:hover {
+button[style*="background: #4caf50"]:hover,
+button[style*="background:#4caf50"]:hover {
   background: linear-gradient(to right, #218838, #1e7e34) !important;
 }
 
-button[style*="background: #f44336"] {
+button[style*="background: #f44336"],
+button[style*="background:#f44336"] {
   background: linear-gradient(to right, #dc3545, #c82333) !important;
   color: white;
 }
-button[style*="background: #f44336"]:hover {
+button[style*="background: #f44336"]:hover,
+button[style*="background:#f44336"]:hover {
   background: linear-gradient(to right, #c82333, #bd2130) !important;
 }
 
-button[style*="background: #ff9800"] {
+button[style*="background: #ff9800"],
+button[style*="background:#ff9800"] {
   background: linear-gradient(to right, #ffc107, #e0a800) !important;
   color: #333;
 }
-button[style*="background: #ff9800"]:hover {
+button[style*="background: #ff9800"]:hover,
+button[style*="background:#ff9800"]:hover {
   background: linear-gradient(to right, #e0a800, #c69500) !important;
+}
+
+button[style*="background: #9c27b0"],
+button[style*="background:#9c27b0"] {
+  background: linear-gradient(to right, #9c27b0, #7b1fa2) !important;
+  color: white;
+}
+button[style*="background: #9c27b0"]:hover,
+button[style*="background:#9c27b0"]:hover {
+  background: linear-gradient(to right, #7b1fa2, #6a1b9a) !important;
 }
 
 div[style*="color: red"] {
@@ -268,25 +533,6 @@ div[style*="color: red"] {
   .page-size select {
     width: 100px;
   }
-  .table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-radius: 10px;
-  }
-
-  .table thead th:first-child { border-top-left-radius: 10px; }
-  .table thead th:last-child { border-top-right-radius: 10px; }
-  tbody tr:last-child td:first-child { border-bottom-left-radius: 10px; }
-  tbody tr:last-child td:last-child { border-bottom-right-radius: 10px; }
-
-  th, td {
-    padding: 10px 8px;
-    font-size: 13px;
-  }
-  th:last-child, td:last-child {
-      min-width: 120px;
-  }
 }
 
 @media (max-width: 576px) {
@@ -299,286 +545,5 @@ div[style*="color: red"] {
     font-size: 20px;
     margin-bottom: 20px;
   }
-  .page-size {
-    font-size: 14px;
-  }
-  .page-size select {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-  .pagination {
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 8px;
-    margin-top: 20px;
-  }
-  .pagination button {
-    padding: 5px 10px;
-    font-size: 13px;
-    border-radius: 6px;
-  }
-  .pagination span {
-    font-size: 14px;
-  }
-
-  .table thead, .table tbody, .table th, .table td, .table tr {
-    display: block;
-  }
-
-  .table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  .table tbody tr {
-    margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    padding: 10px;
-  }
-
-  .table tbody td {
-    border: none;
-    position: relative;
-    padding-left: 50%;
-    text-align: right;
-    font-size: 14px;
-    min-height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
-
-  .table tbody td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 10px;
-    width: calc(50% - 20px);
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left;
-    font-weight: 600;
-    color: #555;
-    flex-shrink: 0;
-  }
-
-  .table tbody td[data-label="Ngày trả"] > div {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    width: 100%;
-  }
-  .table tbody td[data-label="Ngày trả"] > div .text-danger {
-      text-align: right;
-      border-top: none;
-      padding-top: 0;
-      margin-top: 5px;
-      width: 100%;
-  }
-
-  .table tbody td[data-label="Thao tác"] {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-top: 10px;
-  }
-  .table tbody td[data-label="Thao tác"]::before {
-    display: none;
-  }
-  .table tbody td[data-label="Thao tác"] button {
-    flex-grow: 1;
-    margin: 5px;
-    font-size: 13px;
-    padding: 8px 10px;
-  }
 }
 </style>
-
-<template>
-  <div class="borrow-list">
-    <h1>Theo dõi mượn sách</h1>
-
-    <InputSearch v-model="search" />
-
-    <div class="page-size mb-2">
-      <label for="pageSize">Hiển thị:</label>
-      <select v-model="perPage" id="pageSize">
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
-      </select>
-      <span> phiếu / trang</span>
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Người mượn</th>
-          <th>Tên sách</th>
-          <th>Số quyển</th>
-          <th>Ngày mượn</th>
-          <th>Ngày trả</th>
-          <th>Trạng thái</th>
-          <th>Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="don in paginatedDonMuon" :key="don._id">
-          <td>{{ loadHoTen(don.MADOCGIA) }}</td>
-          <td>{{ loadSach(don.MASACH) }}</td>
-          <td>{{ don.SOQUYEN }}</td>
-          <td>{{ formatDate(don.NGAYMUON) }}</td>
-          <td>
-            {{ formatNgay(don.NGAYTRA) }}
-            <div
-              v-if="isQuaHan(don.NGAYMUON, don.NGAYTRA)"
-              style="color: red; font-size: 0.9rem"
-            >
-              Mượn quá hạn ({{ soNgayTre(don.NGAYMUON, don.NGAYTRA) }} ngày).
-              Phạt thêm {{ soNgayTre(don.NGAYMUON, don.NGAYTRA) * 5000 }}đ
-            </div>
-          </td>
-          <td>{{ don.trangThai }}</td>
-          <td>
-            <button
-              style="background: #4caf50; color: white"
-              v-if="don.trangThai === 'Chờ duyệt'"
-              @click="$emit('duyetMuon', don)"
-            >
-              Duyệt
-            </button>
-            <button
-              style="background: #f44336; color: white"
-              v-if="don.trangThai === 'Đang mượn'"
-              @click="$emit('xacNhanTra', don)"
-            >
-              Trả
-            </button>
-            <button
-              style="background: #ff9800; color: white"
-              v-if="don.trangThai === 'Đã trả'"
-              @click="$emit('xoaDonMuon', don)"
-            >
-              Xóa
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="pagination mt-3">
-      <button @click="prevPage" :disabled="currentPage === 1">
-        <i class="bi bi-chevron-left"></i>
-        Trước
-      </button>
-      <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">
-        Sau
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-  </div>
-</template>
-
-<script>
-import InputSearch from '@/components/InputSearch.vue'
-
-export default {
-  components: { InputSearch },
-  props: {
-    danhSachDonMuon: Array,
-    danhSachDocGia: Array,
-    danhSachSach: Array
-  },
-
-  data() {
-    return {
-      books: [],
-      currentPage: 1,
-      perPage: 10,
-      search: ''
-    }
-  },
-  computed: {
-    filteredDonMuon() {
-      const keyword1 = this.search.normalize("NFC").toLowerCase().trim();
-      const keyword2 = this.search.toLowerCase().trim()
-      return this.danhSachDonMuon.filter(don => {
-        const TENSACH = this.loadSach(don.MASACH).toLowerCase().trim() || '';
-        const hoTen = this.loadHoTen(don.MADOCGIA).toLowerCase().trim() || '';
-        const trangThai = don.trangThai?.toLowerCase().trim() || '';
-        return (
-          TENSACH.includes(keyword1) ||
-          hoTen.includes(keyword2) ||
-          trangThai.includes(keyword1)
-        );
-      });
-    },
-
-    totalPages() {
-      return Math.ceil(this.filteredDonMuon.length / this.perPage)
-    },
-    paginatedDonMuon() {
-      const start = (this.currentPage - 1) * this.perPage
-      const end = start + this.perPage
-      return this.filteredDonMuon.slice(start, end)
-    }
-  },
-  methods: {
-    loadHoTen(MADOCGIA) {
-      const docGia = this.danhSachDocGia.find(dg => dg._id === MADOCGIA)
-      return docGia ? docGia.TEN : 'Không tìm thấy'
-    },
-    loadSach(MASACH) {
-      const sach = this.danhSachSach.find(s => s.MASACH === MASACH)
-      return sach ? sach.TENSACH : 'Không tìm thấy'
-    },
-    formatDate(date) {
-      return new Date(date).toLocaleDateString('vi-VN')
-    },
-    formatNgay(ngay) {
-      if (!ngay || ngay === 'null') return 'Chưa trả'
-      return new Date(ngay).toLocaleDateString('vi-VN')
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--
-      }
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++
-      }
-    },
-    isQuaHan(NGAYMUON, NGAYTRA) {
-      if (!NGAYMUON || !NGAYTRA) return false;
-      const start = new Date(NGAYMUON);
-      const end = new Date(NGAYTRA);
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-      return days > 14;
-    },
-    soNgayTre(NGAYMUON, NGAYTRA) {
-      if (!NGAYMUON || !NGAYTRA) return 0;
-      const start = new Date(NGAYMUON);
-      const end = new Date(NGAYTRA);
-      const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-      return days > 14 ? days - 14 : 0;
-    }
-  },
-  created() {
-    this.danhSachDonMuon.forEach(don => {
-      this.loadHoTen(don.MADOCGIA, don)
-      this.loadSach(don.MASACH, don)
-    })
-  },
-  watch: {
-    perPage() {
-      this.currentPage = 1
-    }
-  }
-}
-</script>

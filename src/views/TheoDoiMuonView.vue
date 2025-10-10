@@ -1,12 +1,14 @@
+
 <template>
   <div>
-    <TheoDoiMuonList 
+    <TheoDoiMuonList
       :danhSachDonMuon="danhSachDonMuon"
       :danhSachDocGia="danhSachDocGia"
       :danhSachSach="danhSachSach"
-      @duyetMuon="duyetMuon" 
+      @duyetMuon="duyetMuon"
       @xacNhanTra="xacNhanTra"
       @xoaDonMuon="xoaDonMuon"
+      @matSach="xuLyMatSach"
     />
   </div>
 </template>
@@ -90,6 +92,32 @@ export default {
           } else {
             alert(error.response.data.message || "Xóa không thành công!");
           }
+        }
+      }
+    },
+    timTenSach(maSach) {
+      const sach = this.danhSachSach.find(s => s.MASACH === maSach);
+      return sach ? sach.TENSACH : "Không rõ";
+    },
+    async xuLyMatSach({ don, lyDo }) {
+      if (!confirm(`Xác nhận báo mất sách "${this.timTenSach(don.MASACH)}"?`)) return;
+
+      try {
+        const response = await axios.put(
+          `http://localhost:3000/api/theodoi/baoMatSach/${don._id}`,
+          { lyDo } // body JSON
+        );
+
+        alert(response.data.message || "Đã báo mất sách thành công!");
+
+        // Reload lại danh sách mượn để cập nhật trạng thái
+        await this.loadDanhSachMuon();
+      } catch (error) {
+        console.error("Lỗi khi báo mất sách:", error);
+        if (error.response && error.response.data.message) {
+          alert("❌ " + error.response.data.message);
+        } else {
+          alert("❌ Có lỗi xảy ra khi báo mất sách!");
         }
       }
     },
