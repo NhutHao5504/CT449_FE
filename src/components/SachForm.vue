@@ -62,16 +62,18 @@
       <div class="form-group">
         <label for="hinhAnh">Ảnh sách:</label>
         <input type="file" id="hinhAnh" accept="image/*" @change="onFileChange" />
-        
       </div>
-      <button class="btn btn-success">Lưu</button>
-      <button
-        type="button"
-        class="btn btn-secondary ml-2"
-        @click="$emit('cancel')"
-      >
-        Hủy
-      </button>
+
+      <!-- Xem trước ảnh -->
+      <div v-if="bookLocal.hinhAnh" class="image-preview">
+        <img :src="bookLocal.hinhAnh" alt="Ảnh xem trước" />
+      </div>
+
+      <!-- Nhóm nút lưu/hủy -->
+      <div class="buttons">
+        <button class="btn btn-success">💾 Lưu</button>
+        <button type="button" class="btn btn-secondary" @click="$emit('cancel')">✖ Hủy</button>
+      </div>
     </form>
   </div>
 </template>
@@ -139,121 +141,161 @@ export default {
 </script>
 
 <style scoped>
-/* Phần nền mờ */
+/* ======= NỀN MỜ ======= */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.3); /* Màu tối mờ */
-  backdrop-filter: blur(3px); /* Tạo hiệu ứng blur cho nền */
+  background: rgba(20, 20, 20, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  overflow-y: auto;        /* ✅ Cho phép cuộn dọc */
+  padding: 40px 0;         /* ✅ Tạo khoảng cách trên dưới */
+  z-index: 2000;           /* ✅ Tăng ưu tiên hiển thị */
 }
 
-/* Form */
+/* ======= FORM CHÍNH ======= */
 form {
   width: 100%;
-  max-width: 600px;
-  background: #ffffff;
-  padding: 25px 30px;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  z-index: 1000;
+  max-width: 720px;
+  background: #fff;
+  padding: 35px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 25px;
   position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+
+  /* ✅ Giới hạn chiều cao và cuộn trong form nếu quá dài */
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
+
+/* Animation vào mượt */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ======= NHÓM FORM ======= */
 .form-group {
-  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
 }
 
 label {
   font-weight: 600;
-  display: block;
   margin-bottom: 6px;
-  color: #333;
+  color: #34495e;
   font-size: 15px;
 }
 
+/* ======= INPUT / SELECT ======= */
 input,
 select {
-  width: 100%;
   padding: 10px 12px;
-  border: 1px solid #ccc;
+  border: 1.5px solid #ced4da;
   border-radius: 8px;
   font-size: 15px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  background-color: #fefefe;
-}
-
-input[type="file"] {
-  padding: 8px 0;
-  background-color: transparent;
+  color: #333;
+  background: #fafafa;
+  transition: all 0.3s ease;
 }
 
 input:focus,
 select:focus {
   border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
   outline: none;
 }
 
+/* File input */
+input[type="file"] {
+  border: none;
+  background: none;
+  padding: 4px 0;
+}
+
+/* ======= ẢNH XEM TRƯỚC ======= */
+.image-preview {
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+.image-preview img {
+  max-width: 200px;
+  max-height: 220px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* ======= NÚT ======= */
 .btn {
-  padding: 10px 20px;
+  padding: 10px 22px;
   border-radius: 8px;
   font-size: 15px;
-  cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Nút lưu */
 .btn-success {
-  background-color: #28a745;
-  color: white;
+  background: linear-gradient(90deg, #28a745, #1e7e34);
+  color: #fff;
 }
-
 .btn-success:hover {
-  background-color: #218838;
+  background: linear-gradient(90deg, #23913c, #166b29);
+  transform: translateY(-1px);
 }
 
+/* Nút hủy */
 .btn-secondary {
-  background-color: #dc3545;
-  color: white;
+  background: linear-gradient(90deg, #dc3545, #b02a37);
+  color: #fff;
 }
-
 .btn-secondary:hover {
-  background-color: #c82333;
+  background: linear-gradient(90deg, #c82333, #922026);
+  transform: translateY(-1px);
 }
 
-.ml-2 {
-  margin-left: 12px;
+.buttons {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
 }
 
+/* ======= RESPONSIVE ======= */
 @media (max-width: 768px) {
   form {
-    padding: 20px;
-    max-width: 90%;
+    grid-template-columns: 1fr;
+    padding: 25px 22px;
   }
-
-  input,
-  select {
-    font-size: 16px;
-    padding: 12px;
+  .buttons {
+    flex-direction: column;
   }
-
   .btn {
     width: 100%;
-    margin-bottom: 12px;
-    text-align: center;
-  }
-
-  .ml-2 {
-    margin-left: 0;
   }
 }
 </style>
+

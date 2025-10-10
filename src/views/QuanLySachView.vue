@@ -1,15 +1,22 @@
-
 <template>
-  <div>
-    <h1>Quản Lý Sách</h1>
-    <InputSearch v-model="search" />
+  <div class="book-management-container">
+    <h1>📚 Quản Lý Sách</h1>
 
-    <button @click="openBookForm(null)" class="btn btn-add">  + Thêm Sách mới</button>
+    <!-- Nhóm tìm kiếm và nút -->
+    <div class="controls-group">
+      <InputSearch v-model="search" placeholder="🔍 Tìm kiếm theo tên, mã, tác giả..." />
 
-    <button @click="showNxbForm = true" class="btn btn-success ml-2">
-      🖨️ + Thêm Nhà Xuất Bản mới
-    </button>
+      <div class="button-group">
+        <button @click="openBookForm(null)" class="btn btn-add">
+          ➕ Thêm Sách Mới
+        </button>
+        <button @click="showNxbForm = true" class="btn btn-publisher">
+          🏢 Thêm Nhà Xuất Bản
+        </button>
+      </div>
+    </div>
 
+    <!-- Form thêm/sửa -->
     <SachForm
       v-if="showBookForm"
       :book="selectedBook"
@@ -19,12 +26,14 @@
       :key="selectedBook?._id || 'new'"
     />
 
+    <!-- Form thêm NXB -->
     <NxbForm
       v-if="showNxbForm"
       @submit="saveNxb"
       @cancel="showNxbForm = false"
     />
 
+    <!-- Danh sách sách -->
     <SachList
       :books="filteredBooks"
       :nxbs="nxbs"
@@ -178,123 +187,99 @@
 
 <style scoped>
 .book-management-container {
-  padding: 30px;
-  max-width: 1000px;
+  padding: 40px;
+  max-width: 1100px;
   margin: 40px auto;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", sans-serif;
 }
 
 h1 {
   font-size: 32px;
   color: #2c3e50;
-  text-shadow: none;
-  margin-bottom: 35px;
-  font-weight: 700;
-  text-transform: uppercase;
   text-align: center;
-  letter-spacing: 1.5px;
+  margin-bottom: 25px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-bottom: 3px solid #3498db;
+  display: inline-block;
+  padding-bottom: 8px;
 }
 
+/* === Nhóm điều khiển === */
 .controls-group {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 15px;
-  margin-bottom: 25px;
-  justify-content: flex-start;
+  margin-bottom: 30px;
 }
 
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* === Nút chung === */
 button {
-  padding: 10px 18px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  color: white;
-  font-size: 15px;
+  color: #fff;
   font-weight: 600;
+  font-size: 15px;
+  padding: 10px 18px;
+  min-width: 150px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  min-width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
-  opacity: 1;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* === Nút thêm sách === */
 .btn-add {
-  background: linear-gradient(to right, #28a745, #218838);
+  background: linear-gradient(90deg, #27ae60, #1e8449);
 }
 
 .btn-add:hover {
-  background: linear-gradient(to right, #218838, #1e7e34);
+  background: linear-gradient(90deg, #1e8449, #145a32);
 }
 
-.btn-success {
-  background: linear-gradient(to right, #007bff, #0056b3);
+/* === Nút thêm NXB === */
+.btn-publisher {
+  background: linear-gradient(90deg, #3498db, #21618c);
 }
 
-.btn-success:hover {
-  background: linear-gradient(to right, #0056b3, #004085);
+.btn-publisher:hover {
+  background: linear-gradient(90deg, #21618c, #154360);
 }
 
-.ml-2 {
-  margin-left: 0;
-}
-
+/* === Responsive === */
 @media (max-width: 768px) {
-  .book-management-container {
-    padding: 20px;
-    margin: 30px auto;
-    border-radius: 12px;
-  }
-  h1 {
-    font-size: 26px;
-    margin-bottom: 30px;
-  }
   .controls-group {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
-    margin-bottom: 20px;
+  }
+  .button-group {
+    justify-content: center;
   }
   button {
     width: 100%;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 6px;
-  }
-  .ml-2 {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 576px) {
-  .book-management-container {
-    padding: 15px;
-    margin: 20px auto;
-    border-radius: 10px;
-  }
-  h1 {
-    font-size: 22px;
-    margin-bottom: 20px;
-  }
-  button {
-    padding: 8px 12px;
-    font-size: 13px;
   }
 }
 </style>

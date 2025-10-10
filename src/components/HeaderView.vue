@@ -1,12 +1,12 @@
 <template>
   <div class="header-bar">
-    <!-- Bên trái: Logo + Tên -->
+    
     <div class="header-left">
       <img src="@/assets/logo.png" alt="Logo" class="logo" />
-      <span class="store-name">Thư Viện NNH</span>
+      <span class="store-name">H'Library</span>
     </div>
 
-    <!-- Navbar nằm ngay bên phải logo + tên -->
+    
     <nav class="navbar-center">
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -109,16 +109,17 @@ export default {
 </script>
 
 <style scoped>
-/* Header tổng thể */
 .header-bar {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  background: #1a2b4c;
-  padding: 14px 30px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  justify-content: space-between;
+  background-image: linear-gradient(to top, #761ab4, #5f14a2, #490e90, #32087e, #1a036c);
+  padding: 12px 40px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   height: 70px;
-  gap: 90px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 /* Bên trái: logo và tên */
@@ -129,83 +130,89 @@ export default {
 }
 
 .logo {
-  height: 45px;
-  width: 45px;
+  height: 48px;
+  width: 48px;
+  border-radius: 10px;
   object-fit: cover;
+  background-color: #fff;
+  padding: 4px;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
 }
 
 .store-name {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #ffffff;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Navbar bên phải */
 .navbar-center {
-  position: static;
-  transform: none;
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .navbar-nav {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 18px;
+  gap: 22px;
+  list-style: none;
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
 .nav-link {
-  color: #f0f0f0 !important;
+  color: #f5f7fa !important;
   font-weight: 500;
   font-size: 15px;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   transition: all 0.25s ease-in-out;
   text-decoration: none;
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  width: 0%;
+  height: 2px;
+  background-color: #88b0f0;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 70%;
 }
 
 .nav-link:hover {
-  background-color: #88b0f0;
   color: #ffffff !important;
+  background-color: rgba(136, 176, 240, 0.15);
   transform: translateY(-1px);
 }
 
 /* Nút Đăng xuất */
 .logout {
-  background-color: #e53935;
   color: #fff !important;
   font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 18px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  margin-left: 50px;
 }
 
 .logout:hover {
-  background-color: #c62828;
+  background-color: #d42525;
   transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.6);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .header-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-    padding: 12px;
-    gap: 10px;
-  }
-
-  .navbar-center {
-    width: 100%;
-  }
-
-  .navbar-nav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .nav-link {
-    width: 100%;
-  }
-}
 </style>
