@@ -1,17 +1,20 @@
 <template>
   <div class="modal-overlay">
     <div class="modal-content">
-      <h2>Đăng Ký Mượn Sách</h2>
+      <button class="btn-close" @click="$emit('close')">&times;</button>
 
       <div class="borrow-form">
         <div class="borrow-header">Phiếu Mượn</div>
+
         <div class="borrow-content">
-          <div>
+          <!-- Tên sách -->
+          <div class="form-group">
             <label>Tên sách:</label>
-            <p><strong>{{ book?.TENSACH }}</strong></p>
+            <p class="book-name">{{ book?.TENSACH }}</p>
           </div>
 
-          <div>
+          <!-- Số lượng -->
+          <div class="form-group">
             <label for="quantity">Số lượng mượn:</label>
             <input
               type="number"
@@ -21,11 +24,13 @@
             />
           </div>
         </div>
-      <h5 style="color: red; font-size: 0.95rem;">
-      (Lưu ý: Không được mượn quá 14 ngày. Mượn quá 1 ngày phạt 5000đ)
-      </h5>
+
+        <p class="note">
+          ⚠️ Không được mượn quá <strong>14 ngày</strong>.  
+          Quá hạn <strong>1 ngày</strong> phạt <strong>5000đ</strong>.
+        </p>
+
         <button class="btn-add" @click="registerBorrow">Đăng Ký Mượn</button>
-        <button class="btn-close" @click="$emit('close')">X</button>
       </div>
     </div>
   </div>
@@ -36,9 +41,7 @@ import { dangKyMuonSach } from '@/services/muonsachService'
 import { useStore } from 'vuex'
 
 export default {
-  props: {
-    book: Object
-  },
+  props: { book: Object },
   data() {
     const store = useStore()
     return {
@@ -57,13 +60,12 @@ export default {
       const today = new Date()
       this.NGAYMUON = today.toISOString().split('T')[0]
 
-      // 👉 THÊM ĐOẠN NÀY Ở ĐÂY
-    console.log("DỮ LIỆU GỬI LÊN:", {
-      docGiaID: this.docGiaId,
-      MASACH: this.book?.MASACH,
-      SOQUYEN: this.quantity,
-      NGAYMUON: this.NGAYMUON
-    });
+      console.log("DỮ LIỆU GỬI LÊN:", {
+        docGiaID: this.docGiaId,
+        MASACH: this.book?.MASACH,
+        SOQUYEN: this.quantity,
+        NGAYMUON: this.NGAYMUON
+      });
 
       dangKyMuonSach(this.docGiaId, this.book.MASACH, this.quantity, this.NGAYMUON)
         .then(() => {
@@ -79,246 +81,174 @@ export default {
 </script>
 
 <style scoped>
-/* Lớp phủ mờ */
+/* === NỀN PHỦ === */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for better focus */
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center; /* 👈 canh giữa dọc và ngang */
   z-index: 999;
+  backdrop-filter: blur(3px);
+  padding: 20px;
+  overflow-y: auto;
 }
 
-/* Form nổi giữa màn hình */
+/* === KHUNG FORM === */
 .modal-content {
-  background: #f0f4f8; /* Softer, light blue-grey background */
-  padding: 30px;
-  border-radius: 12px; /* Consistent border-radius */
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-  max-width: 600px;
-  width: 90%; /* Adjusted width for better responsiveness */
   position: relative;
-  animation: fadeIn 0.3s ease-in-out;
+  background: #fff;
+  border-radius: 16px;
+  padding: 26px 32px 34px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-family: "Segoe UI", sans-serif;
+  animation: popUp 0.3s ease;
+  margin-top: 80px;
 }
 
-@keyframes fadeIn {
+@keyframes popUp {
   from {
-    transform: scale(0.9);
+    transform: translateY(30px);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-h2 {
-  font-size: 28px;
-  color: #2c3e50;
-  font-weight: 700;
-  margin-bottom: 30px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.borrow-form {
-  background: #ffffff;
-  padding: 30px; /* Increased padding inside the form */
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  border-left: none; /* Removed the prominent blue left border */
-  position: relative;
-  overflow: hidden;
-  border: 1px solid #e0e0e0; /* Subtle light border */
-}
-
-.borrow-header {
-  background: linear-gradient(to right, #4a90e2, #5c7ee6); /* Modern blue gradient */
-  color: white;
-  padding: 15px 20px;
-  font-size: 20px;
-  font-weight: 600;
-  text-align: center;
-  border-radius: 10px 10px 0 0;
+/* === NÚT ĐÓNG === */
+.btn-close {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  top: -12px;
+  right: -12px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 22px;
+  line-height: 32px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+}
+.btn-close:hover {
+  background: #c0392b;
+  transform: rotate(90deg);
 }
 
+/* === FORM CHÍNH === */
+.borrow-form {
+  background: #f9fafb;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 18px 26px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* === TIÊU ĐỀ PHIẾU === */
+.borrow-header {
+  background: linear-gradient(135deg, #4a90e2, #3a6fd0);
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+/* === NỘI DUNG FORM: MỖI Ô MỘT DÒNG === */
 .borrow-content {
-  margin-top: 60px; /* Increased margin to clear the absolute header */
-  display: flex;
-  flex-direction: column; /* Stack items vertically */
-  gap: 20px; /* More space between form groups */
+  display: block; /* 👈 bỏ flex, cho mỗi nhóm xuống dòng */
 }
 
 .form-group {
-    margin-bottom: 0; /* Handled by gap in .borrow-content */
+  margin-bottom: 16px; /* 👈 tạo khoảng cách giữa các nhóm */
 }
 
 label {
   font-weight: 600;
+  color: #333;
   font-size: 15px;
-  color: #34495e;
+  margin-bottom: 6px;
   display: block;
-  margin-bottom: 8px;
 }
 
-/* Style for displaying the book name */
-.book-name-display {
-    padding: 12px 15px;
-    background-color: #fcfcfc;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-    font-size: 16px;
-    color: #333;
-    font-weight: normal; /* Override strong's default bold if needed */
-    margin-bottom: 0; /* Remove default paragraph margin */
+.book-name {
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  color: #2c3e50;
 }
-
-.book-name-display strong {
-    color: #333; /* Ensure strong text color is readable within the display box */
-}
-
 
 input[type="number"] {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #cccccc;
+  padding: 9px 12px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 16px;
-  color: #333;
-  background-color: #fcfcfc;
-  transition: all 0.3s ease-in-out;
+  font-size: 15px;
+  transition: all 0.25s;
 }
-
 input[type="number"]:focus {
   border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
-  background-color: #ffffff;
 }
 
-h5 {
+
+/* === GHI CHÚ === */
+.note {
   color: #e74c3c;
-  font-size: 0.9em;
-  margin-top: 20px;
+  font-size: 0.9rem;
+  margin-top: 16px;
   text-align: center;
-  font-weight: 500;
+  line-height: 1.4;
 }
 
-.button-container {
-    display: flex;
-    justify-content: flex-end; /* Align buttons to the right */
-    gap: 15px; /* Space between buttons */
-    margin-top: 30px; /* Space above the button group */
-}
-
-.btn-add,
-.btn-close {
-  display: inline-block;
-  padding: 14px 25px; /* Consistent padding */
-  font-size: 17px;
-  border-radius: 8px; /* Consistent border-radius */
-  cursor: pointer;
-  border: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(186, 198, 118, 0.15);
-  font-weight: 600;
-}
-
+/* === NÚT ĐĂNG KÝ === */
 .btn-add {
-  background: linear-gradient(to right, #28a745, #218838); /* Green gradient */
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #43a047, #2e7d32);
   color: white;
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
-
 .btn-add:hover {
-  background: linear-gradient(to right, #218838, #1e7e34);
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
-.btn-add:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.btn-close {
-  background: #f53f3f; /* Muted grey for close */
-  color: white;
-}
-
-.btn-close:hover {
-  background: #5a6268;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-.btn-close:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
+/* === RESPONSIVE === */
 @media (max-width: 600px) {
-  .modal-content {
-    padding: 20px;
-    width: 95%;
-  }
-
-  h2 {
-    font-size: 24px;
-    margin-bottom: 25px;
-  }
-
-  .borrow-form {
-    padding: 20px;
-  }
-
-  .borrow-header {
-    font-size: 18px;
-    padding: 10px 15px;
-  }
-
   .borrow-content {
-    margin-top: 50px;
-    gap: 15px;
+    flex-direction: column;
   }
-
-  label {
-    font-size: 14px;
-    margin-bottom: 6px;
+  .modal-content {
+    max-width: 95%;
+    padding: 22px;
   }
-
-  .book-name-display,
-  input[type="number"] {
-    padding: 10px 12px;
-    font-size: 15px;
-  }
-
-  h5 {
-    font-size: 0.85em;
-    margin-top: 15px;
-  }
-
-  .button-container {
-    flex-direction: column; /* Stack buttons vertically on small screens */
-    gap: 10px;
-    margin-top: 25px;
-  }
-
-  .btn-add,
   .btn-close {
-    padding: 12px 20px;
-    font-size: 16px;
-    width: 100%; /* Full width buttons */
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
   }
 }
 </style>

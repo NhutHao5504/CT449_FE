@@ -189,7 +189,7 @@
 .book-management-container {
   padding: 40px;
   max-width: 1100px;
-  margin: 40px auto;
+  margin: 20px auto;
   background-color: #fff;
   border-radius: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
