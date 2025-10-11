@@ -1,7 +1,7 @@
 <template>
   <div class="overlay" @click.self="$emit('cancel')">
     <form @submit.prevent="submitForm">
-      <h2>📢 Thông báo mất sách</h2>
+      <h2>Thông báo mất sách</h2>
 
       <div class="form-group">
         <label><strong>Người mượn:</strong></label>

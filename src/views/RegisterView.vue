@@ -1,37 +1,41 @@
 <template>
   <div class="container">
     <div class="card">
-      <h2 class="text-center">Đăng ký</h2>
+      <h2 class="text-center">ĐĂNG KÝ</h2>
       <form @submit.prevent="handleRegister">
         <div class="form-grid">
           <div class="form-group">
-            <label class="form-label">Họ và tên</label>
-            <input type="text" class="form-control" v-model="tenDG" required />
+            <label class="form-label">Họ lót</label>
+            <input type="text" class="form-control" v-model="HOLOT" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tên</label>
+            <input type="text" class="form-control" v-model="TEN" required />
           </div>
           <div class="form-group">
             <label class="form-label">Ngày sinh</label>
-            <input type="date" class="form-control" v-model="ngaysinh" required />
+            <input type="date" class="form-control" v-model="NGAYSINH" required />
           </div>
 
           <div class="form-group">
             <label class="form-label">Giới tính</label>
             <div class="radio-group">
-              <label><input type="radio" value="Nam" v-model="gioitinh" required /> Nam</label>
-              <label><input type="radio" value="Nữ" v-model="gioitinh" required /> Nữ</label>
+              <label><input type="radio" value="Nam" v-model="PHAI" required /> Nam</label>
+              <label><input type="radio" value="Nữ" v-model="PHAI" required /> Nữ</label>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Địa chỉ</label>
-            <input type="text" class="form-control" v-model="diachi" required />
+            <input type="text" class="form-control" v-model="DIACHI" required />
           </div>
 
           <div class="form-group">
             <label class="form-label">Số điện thoại</label>
-            <input type="text" class="form-control" v-model="dienthoaiDG" required />
+            <input type="text" class="form-control" v-model="DIENTHOAI" required />
           </div>
           <div class="form-group">
             <label class="form-label">Mật khẩu</label>
-            <input type="password" class="form-control" v-model="matkhauDG" required />
+            <input type="password" class="form-control" v-model="MATKHAUDOCGIA" required />
           </div>
 
           <div class="form-group">
@@ -52,6 +56,51 @@
   </div>
 </template>
 
+
+
+
+<script>
+import axios from 'axios';
+
+export default {
+  data() {
+    return {
+      HOLOT: '',
+      TEN: '',
+      NGAYSINH: '',
+      PHAI: '',
+      DIACHI: '',
+      DIENTHOAI: '',
+      MATKHAUDOCGIA: '',
+      confirmmatkhauDG: '',
+    };
+  },
+  methods: {
+    async handleRegister() {
+      if (this.MATKHAUDOCGIA !== this.confirmmatkhauDG) {
+        alert('Mật khẩu xác nhận không khớp!');
+        return;
+      }
+
+      try {
+        await axios.post('http://localhost:3000/api/docgia/register', { 
+          HOLOT: this.HOLOT,
+          TEN: this.TEN,
+          NGAYSINH: this.NGAYSINH,
+          PHAI: this.PHAI,
+          DIACHI: this.DIACHI,
+          DIENTHOAI: this.DIENTHOAI, 
+          MATKHAUDOCGIA: this.MATKHAUDOCGIA, 
+          confirmmatkhauDG: this.confirmmatkhauDG });
+        alert('Đăng ký thành công');
+        this.$router.push('/logindocgia');
+      } catch (error) {
+        alert(error.response?.data?.message || 'Đăng ký thất bại');
+      }
+    }
+  }
+};
+</script>
 <style scoped>
 .container {
   min-height: 100vh;
@@ -164,45 +213,3 @@ h2 {
   text-decoration: underline;
 }
 </style>
-
-
-<script>
-import axios from 'axios';
-
-export default {
-  data() {
-    return {
-      tenDG: '',
-      ngaysinh: '',
-      gioitinh: '',
-      diachi: '',
-      dienthoaiDG: '',
-      matkhauDG: '',
-      confirmmatkhauDG: '',
-    };
-  },
-  methods: {
-    async handleRegister() {
-      if (this.matkhauDG !== this.confirmmatkhauDG) {
-        alert('Mật khẩu xác nhận không khớp!');
-        return;
-      }
-
-      try {
-        await axios.post('http://localhost:3000/api/docgia/register', { 
-          tenDG: this.tenDG,
-          ngaysinh: this.ngaysinh,
-          gioitinh: this.gioitinh,
-          diachi: this.diachi,
-          dienthoaiDG: this.dienthoaiDG, 
-          matkhauDG: this.matkhauDG, 
-          confirmmatkhauDG: this.confirmmatkhauDG });
-        alert('Đăng ký thành công');
-        this.$router.push('/logindocgia');
-      } catch (error) {
-        alert(error.response?.data?.message || 'Đăng ký thất bại');
-      }
-    }
-  }
-};
-</script>

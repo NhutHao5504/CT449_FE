@@ -54,7 +54,7 @@
         <p><strong>Nhà xuất bản:</strong> {{ getNXBName(sach.MANXB) || "Không rõ" }}</p>
         <p><strong>Giá:</strong> {{ formatPrice(sach.DONGIA) }}</p>
         <p>
-          <strong>Tình trạng:</strong>
+          <strong>Tình trạng: </strong>
           <span :class="{ 'out-of-stock': sach.SOQUYEN === 0 }">
             {{ sach.SOQUYEN > 0 ? `${sach.SOQUYEN} quyển` : 'Hết sách' }}
           </span>
@@ -166,21 +166,21 @@ export default {
 }
 
 .btn-view-info {
-  background-color: #26a69a;
+  background-color: #3ea4d3;
   color: white;
 }
 
 .btn-view-info:hover {
-  background-color: #00796b;
+  background-color: #11cf74;
 }
 
 .btn-borrow {
-  background-color: #5c6bc0;
+  background-color: #862599;
   color: white;
 }
 
 .btn-borrow:hover {
-  background-color: #3949ab;
+  background-color: #d62882;
 }
 
 .btn-borrow:disabled {

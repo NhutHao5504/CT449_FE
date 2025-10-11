@@ -94,7 +94,7 @@ button[type="submit"]:hover {
 
 <template>
   <div class="container d-flex justify-content-center align-items-center vh-50 mt-5">
-    <div class="card p-3 shadow-lg" style="max-width: 400px; width: 100%">
+    <div class="card p-3 shadow-lg" style="max-width: 400px; width: 100%; margin-bottom: 25px; margin-top: -18px;">
       <h2 class="text-center">Đăng nhập để trải nghiệm các tiện ích của Thư viện NNH</h2>
       <form @submit.prevent="handleLogin">
         <div class="mb-3">

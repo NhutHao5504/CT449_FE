@@ -46,9 +46,9 @@
 <td>
   <!-- ✅ Khi mất sách -->
   <div v-if="don.trangThai === 'Mất sách'">
-    <strong style="color: #e74c3c">📕 {{ don.trangThai }}</strong>
+    <strong style="color: #e74c3c"> {{ don.trangThai }}</strong>
     <div style="margin-top: 4px; color: #c0392b; font-weight: 600;">
-      💸 Bồi thường:
+      Bồi thường:
       {{ formatCurrency(don.TIENBOITHUONG) }}
     </div>
   </div>
@@ -91,7 +91,7 @@
     v-if="don.trangThai === 'Đang mượn'"
     @click="$emit('xacNhanTra', don)"
   >
-    Trả
+    Trả sách
   </button>
 
   <!-- Mất sách -->
@@ -109,7 +109,7 @@
     v-if="don.trangThai === 'Mất sách'"
     @click="$emit('xoaDonMuon', don)"
   >
-    🗑 Xóa
+    Xóa
   </button>
 
   <!-- Đã trả -->

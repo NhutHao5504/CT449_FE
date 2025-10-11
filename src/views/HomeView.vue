@@ -3,7 +3,7 @@
     <!-- HERO SECTION -->
     <section class="hero">
       <div class="hero-overlay">
-        <h1 class="hero-title">📚 Thư Viện NNH</h1>
+        <h1 class="hero-title">📚 H'LIBRARY</h1>
         <p class="hero-subtitle">Nơi lưu giữ tri thức — Mở rộng tâm hồn qua từng trang sách</p>
         <InputSearch v-model="search" />
       </div>
