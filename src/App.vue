@@ -1,6 +1,7 @@
 <script setup>
 import HeaderComponent from './components/HeaderView.vue'
 import FooterComponent from './components/FooterView.vue'
+import ChatBot from './components/ChatBot.vue'
 </script>
 
 <template>
@@ -13,7 +14,10 @@ import FooterComponent from './components/FooterView.vue'
       </div>
     </main>
 
+
     <FooterComponent />
+    <ChatBot />
+
   </div>
 </template>
 
