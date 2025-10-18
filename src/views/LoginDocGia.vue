@@ -152,14 +152,20 @@ button[type="submit"]:hover {
               DIENTHOAI: this.DIENTHOAI,
               MATKHAUDOCGIA: this.MATKHAUDOCGIA
             }
-          )
+          );
 
-          const id = response.data?._id || response.data?.user?._id
+          // Giả sử backend trả về object user trong response.data
+          const docgia = response.data.user; 
 
+          // 1) Lưu vào Vuex (bạn đã có)
           this.$store.dispatch('login', {
-            _id: id,
+            _id: docgia._id,
             role: 'docgia',
-          })
+            // có thể lưu thêm tên, phone...
+          });
+
+          // 2) **Bắt buộc**: Lưu vào localStorage để FE khác (chatbot component) đọc được
+          localStorage.setItem('docgia', JSON.stringify(docgia));
 
           alert('Đăng nhập độc giả thành công')
           this.$router.push('/')

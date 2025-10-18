@@ -7,8 +7,14 @@
       </div>
 
       <div class="chat-body" ref="chatBody">
-        <div v-for="(msg, index) in messages" :key="index" :class="msg.role">
-          <p>{{ msg.text }}</p>
+        <div
+          v-for="(msg, index) in messages"
+          :key="index"
+          :class="msg.role"
+        >
+          <div v-if="msg.role === 'bot'" class="bot-msg" v-html="msg.text"></div>
+          <div v-else class="user-msg">{{ msg.text }}</div>
+
         </div>
       </div>
 
@@ -23,19 +29,36 @@
     </div>
   </div>
 
-  <button class="chat-toggle" @click="visible = !visible" v-if="!visible">
+  <button class="chat-toggle" @click="toggleChat" v-if="!visible">
     💬
   </button>
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
-import { askGemini } from "@/services/chatbot.js"; // dùng service riêng
+import { ref, nextTick, watch } from "vue";
+import { askGemini } from "@/services/chatbot.js";
 
 const userInput = ref("");
 const messages = ref([]);
 const visible = ref(false);
 const chatBody = ref(null);
+
+// 🟢 Khi bấm mở chat → tự động gửi lời chào nếu chưa có tin nhắn
+const toggleChat = async () => {
+  visible.value = !visible.value;
+  if (visible.value && messages.value.length === 0) {
+    try {
+      const reply = await askGemini(""); // gửi message rỗng để backend trả lời hướng dẫn
+      messages.value.push({ role: "bot", text: reply });
+
+      await nextTick(() => {
+        chatBody.value.scrollTop = chatBody.value.scrollHeight;
+      });
+    } catch (error) {
+      console.error("⚠️ Lỗi khi tải lời chào:", error);
+    }
+  }
+};
 
 const sendMessage = async () => {
   const text = userInput.value.trim();
@@ -49,10 +72,11 @@ const sendMessage = async () => {
   });
 
   try {
-    const reply = await askGemini(
-      `Bạn là trợ lý thư viện, hãy trả lời bằng tiếng Việt ngắn gọn, rõ ràng.\nNgười dùng hỏi: ${text}`
-    );
+    const currentUser = JSON.parse(localStorage.getItem("docgia"));
+    const docGiaId = currentUser?.MADOCGIA || null;
+    const docGiaMongoId = currentUser?._id || null;
 
+    const reply = await askGemini(text, docGiaId, docGiaMongoId);
     messages.value.push({ role: "bot", text: reply });
 
     await nextTick(() => {
@@ -62,7 +86,7 @@ const sendMessage = async () => {
     console.error("Lỗi chatbot:", err);
     messages.value.push({
       role: "bot",
-      text: "Có lỗi khi kết nối tới Gemini API!",
+      text: "⚠️ Có lỗi khi kết nối tới chatbot!",
     });
   }
 };
@@ -124,6 +148,16 @@ const sendMessage = async () => {
   color: #007bff;
 }
 
+.chat-body .bot ul {
+  padding-left: 1rem !important;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+}
+
+.chat-body .bot-msg ul {
+  padding-left: 1rem;
+}
+
 .chat-input {
   display: flex;
   border-top: 1px solid #ccc;
@@ -150,5 +184,83 @@ const sendMessage = async () => {
   font-size: 18px;
   border: none;
   cursor: pointer;
+}
+
+.chat-body .bot p,
+.chat-body .bot div {
+  background: #e9f2ff;
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 90%;
+  text-align: left;
+  white-space: pre-line;
+}
+
+.chat-body .user p {
+  background: #dcf8c6;
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin: 5px 0;
+  max-width: 90%;
+  text-align: right;
+}
+
+.user-msg {
+  background: #dcf8c6;
+  color: #1e2a1f;
+  padding: 10px 14px;
+  border-radius: 16px 16px 0 16px;
+  margin: 6px 0;
+  max-width: 80%;
+  display: inline-block; /* ✅ giúp chỉ bọc vừa nội dung */
+  text-align: left; /* ✅ nội dung canh trái trong khung */
+  align-self: flex-end; /* ✅ đẩy sang phải */
+  word-break: break-word;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bot-msg {
+  background: #e9f2ff;
+  color: #2c3e50;
+  padding: 10px 14px;
+  border-radius: 12px 12px 12px 0;
+  margin: 6px 0;
+  max-width: 85%;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(0, 123, 255, 0.15);
+  line-height: 1.4; /* giảm khoảng cách dòng */
+}
+
+/* 🟢 Giảm khoảng cách giữa tiêu đề và danh sách */
+.bot-msg p {
+  margin: 0 0 6px 0;
+  font-weight: 600;
+  color: #003d99;
+}
+
+/* 🟢 Danh sách gọn gàng hơn */
+.bot-msg ul {
+  margin: 0;
+  padding-left: 1rem; /* lùi nhẹ danh sách */
+  list-style-type: disc;
+}
+
+/* 🟢 Các mục li đều nhau, khoảng cách nhỏ */
+.bot-msg li {
+  margin: 2px 0; /* giảm khoảng cách giữa các dòng */
+  line-height: 1.3;
+}
+
+/* 🟢 Nhấn mạnh chữ đậm */
+.bot-msg strong {
+  color: #004aad;
+}
+</style>
+<style>
+.bot-msg ul {
+  padding-left: 1rem !important;
 }
 </style>
