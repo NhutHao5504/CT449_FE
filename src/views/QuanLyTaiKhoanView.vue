@@ -1,6 +1,6 @@
 <template>
   <div class="account-management-container">
-    <h1>👥 Quản Lý Tài Khoản</h1>
+    <h1>Quản Lý Tài Khoản</h1>
 
     <!-- Khu vực điều khiển -->
     <div class="controls-group">
@@ -9,14 +9,14 @@
           @click="activeTab = 'docgia'"
           :class="['btn-tab', { active: activeTab === 'docgia' }]"
         >
-          📖 Danh Sách Độc Giả
+          Danh Sách Độc Giả
         </button>
 
         <button
           @click="activeTab = 'nhanvien'"
           :class="['btn-tab', { active: activeTab === 'nhanvien' }]"
         >
-          👨‍💼 Danh Sách Nhân Viên
+          Danh Sách Nhân Viên
         </button>
       </div>
 
@@ -24,7 +24,7 @@
         @click="showNhanVienForm = true"
         class="btn btn-add"
       >
-        ➕ Thêm Nhân Viên
+        Thêm Nhân Viên
       </button>
     </div>
 

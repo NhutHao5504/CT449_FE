@@ -1,6 +1,6 @@
 <template>
   <div class="book-management-container">
-    <h1>📚 Quản Lý Sách</h1>
+    <h1>Quản Lý Sách</h1>
 
     <!-- Nhóm tìm kiếm và nút -->
     <div class="controls-group">
@@ -8,10 +8,10 @@
 
       <div class="button-group">
         <button @click="openBookForm(null)" class="btn btn-add">
-          ➕ Thêm Sách Mới
+          Thêm Sách Mới
         </button>
         <button @click="showNxbForm = true" class="btn btn-publisher">
-          🏢 Thêm Nhà Xuất Bản
+          Thêm Nhà Xuất Bản
         </button>
       </div>
     </div>

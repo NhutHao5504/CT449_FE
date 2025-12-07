@@ -14,11 +14,11 @@
         </li>
 
         <template v-if="userRole === 'docgia'">
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link class="nav-link" to="/muonsach"
               >Đăng ký Mượn Sách</router-link
             >
-          </li>
+          </li> -->
           <li class="nav-item">
             <router-link class="nav-link" to="/lichsumuon"
               >Lịch Sử Mượn Sách</router-link
@@ -100,11 +100,35 @@ export default {
     },
   },
   methods: {
-    handleLogout() {
-      this.$store.dispatch("logout");
-      this.$router.push("/logindocgia");
+    async handleLogout() {
+      try {
+        const user = this.$store.state.user;
+
+        if (user && user._id) {
+          // 🧹 Gọi API reset lịch sử chat trên server
+          await fetch("http://localhost:3000/api/chatbot/reset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ docGiaId: user._id }),
+          });
+        }
+
+        // 🧽 Xóa cache/lịch sử chat lưu trong trình duyệt (nếu có)
+        localStorage.removeItem("chatHistory");
+        sessionStorage.removeItem("chatHistory");
+
+        // 🚪 Gọi action logout từ Vuex
+        await this.$store.dispatch("logout");
+
+        // 🔁 Chuyển hướng về trang đăng nhập
+        this.$router.push("/logindocgia");
+      } catch (error) {
+        console.error("Lỗi khi đăng xuất:", error);
+      }
     },
+
   },
+
 };
 </script>
 

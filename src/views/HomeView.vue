@@ -3,7 +3,7 @@
     <!-- HERO SECTION -->
     <section class="hero">
       <div class="hero-overlay">
-        <h1 class="hero-title">📚 H'LIBRARY</h1>
+        <h1 class="hero-title">H'LIBRARY</h1>
         <p class="hero-subtitle">Nơi lưu giữ tri thức — Mở rộng tâm hồn qua từng trang sách</p>
         <InputSearch v-model="search" />
       </div>
@@ -27,7 +27,7 @@
 
     <!-- DANH SÁCH SÁCH -->
     <section class="book-section">
-      <h2 class="section-title">📖 Danh Sách Sách</h2>
+      <h2 class="section-title">Danh Sách Sách</h2>
       <div class="sach-list">
         <SachCard
           v-for="sach in paginatedBooks"

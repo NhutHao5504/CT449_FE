@@ -71,8 +71,8 @@
 
       <!-- Nhóm nút lưu/hủy -->
       <div class="buttons">
-        <button class="btn btn-success">💾 Lưu</button>
-        <button type="button" class="btn btn-secondary" @click="$emit('cancel')">✖ Hủy</button>
+        <button class="btn btn-success">Lưu</button>
+        <button type="button" class="btn btn-secondary" @click="$emit('cancel')">Hủy</button>
       </div>
     </form>
   </div>
